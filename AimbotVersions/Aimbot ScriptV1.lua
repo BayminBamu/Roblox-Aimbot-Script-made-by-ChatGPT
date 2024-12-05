@@ -12,6 +12,7 @@ mainFrame.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
 mainFrame.BorderSizePixel = 2
 mainFrame.BorderColor3 = Color3.new(0, 0, 0)
 
+-- Toggle Camera Lock Button
 local toggleButton = Instance.new("TextButton", mainFrame)
 toggleButton.Size = UDim2.new(0, 200, 0, 50)
 toggleButton.Position = UDim2.new(0.5, -100, 0, 10)
@@ -20,6 +21,7 @@ toggleButton.BackgroundColor3 = Color3.new(0, 1, 0)
 toggleButton.Font = Enum.Font.SourceSansBold
 toggleButton.TextSize = 16
 
+-- Toggle Team Check Button
 local teamCheckButton = Instance.new("TextButton", mainFrame)
 teamCheckButton.Size = UDim2.new(0, 200, 0, 50)
 teamCheckButton.Position = UDim2.new(0.5, -100, 0, 70)
@@ -28,6 +30,7 @@ teamCheckButton.BackgroundColor3 = Color3.new(0, 1, 0)
 teamCheckButton.Font = Enum.Font.SourceSansBold
 teamCheckButton.TextSize = 16
 
+-- Whitelist Frame
 local whitelistFrame = Instance.new("Frame", mainFrame)
 whitelistFrame.Size = UDim2.new(0, 200, 0, 150)
 whitelistFrame.Position = UDim2.new(0.5, -100, 0, 130)
@@ -36,7 +39,6 @@ whitelistFrame.BorderSizePixel = 2
 
 local whitelistTextBox = Instance.new("TextBox", whitelistFrame)
 whitelistTextBox.Size = UDim2.new(1, 0, 0.2, 0)
-whitelistTextBox.Position = UDim2.new(0, 0, 0, 0)
 whitelistTextBox.PlaceholderText = "Enter player name"
 whitelistTextBox.BackgroundColor3 = Color3.new(0.4, 0.4, 0.4)
 whitelistTextBox.Font = Enum.Font.SourceSans
@@ -63,7 +65,6 @@ whitelistList.Size = UDim2.new(1, 0, 0.4, 0)
 whitelistList.Position = UDim2.new(0, 0, 0.6, 0)
 whitelistList.CanvasSize = UDim2.new(0, 0, 0, 0)
 whitelistList.BackgroundColor3 = Color3.new(0.4, 0.4, 0.4)
-whitelistList.BorderSizePixel = 1
 
 local closeButton = Instance.new("TextButton", mainFrame)
 closeButton.Size = UDim2.new(0, 30, 0, 30)
@@ -77,34 +78,64 @@ closeButton.TextSize = 16
 local cameraLockEnabled = false
 local teamCheckEnabled = false
 local whitelist = {}
-
 local dragging = false
 local dragInput, mousePos, framePos
 
--- Functions
-local function updateWhitelistList()
-    whitelistList:ClearAllChildren()
-    local yPos = 0
-    for playerName, _ in pairs(whitelist) do
-        local playerLabel = Instance.new("TextButton", whitelistList)
-        playerLabel.Size = UDim2.new(1, 0, 0, 30)
-        playerLabel.Position = UDim2.new(0, 0, 0, yPos)
-        playerLabel.Text = playerName
-        playerLabel.BackgroundColor3 = Color3.new(0.8, 0.8, 0.8)
-        playerLabel.Font = Enum.Font.SourceSans
-        playerLabel.TextSize = 14
-        playerLabel.MouseButton1Click:Connect(function()
-            whitelist[playerName] = nil
-            updateWhitelistList()
-        end)
-        yPos = yPos + 30
-    end
-    whitelistList.CanvasSize = UDim2.new(0, 0, 0, yPos)
+-- Dragging Functionality
+local function updateInput(input)
+    local delta = input.Position - mousePos
+    mainFrame.Position = UDim2.new(
+        framePos.X.Scale,
+        framePos.X.Offset + delta.X,
+        framePos.Y.Scale,
+        framePos.Y.Offset + delta.Y
+    )
 end
 
+mainFrame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        mousePos = input.Position
+        framePos = mainFrame.Position
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
+end)
 
+mainFrame.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement then
+        dragInput = input
+    end
+end)
 
--- Add your remaining logic here (Camera lock, etc.)
+game:GetService("UserInputService").InputChanged:Connect(function(input)
+    if input == dragInput and dragging then
+        updateInput(input)
+    end
+end)
+
+-- Camera Lock Logic
+local function getNearestPlayer()
+    local nearestPlayer = nil
+    local shortestDistance = math.huge
+    for _, otherPlayer in pairs(game.Players:GetPlayers()) do
+        if otherPlayer ~= player and otherPlayer.Character and otherPlayer.Character:FindFirstChild("HumanoidRootPart") then
+            if (not teamCheckEnabled or (teamCheckEnabled and otherPlayer.Team ~= player.Team)) and (not whitelist[otherPlayer.Name]) then
+                local distance = (player.Character.HumanoidRootPart.Position - otherPlayer.Character.HumanoidRootPart.Position).Magnitude
+                if distance < shortestDistance then
+                    shortestDistance = distance
+                    nearestPlayer = otherPlayer
+                end
+            end
+        end
+    end
+    return nearestPlayer
+end
+
+-- Add the rest of your code below (Camera lock enabling/disabling and interactions).
 local function getNearestPlayer()
     local nearestPlayer = nil
     local shortestDistance = math.huge
