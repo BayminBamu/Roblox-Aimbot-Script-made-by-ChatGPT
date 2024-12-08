@@ -23,4 +23,4 @@ Also self-explanatory.
 
 
 ## License
-This project is licensed under the MIT License. For more details, see the [LICENSE]([https://pages.github.com/](https://github.com/BayminBamu/Roblox-Aimbot-Script-made-by-ChatGPT/blob/main/LICENSE)) file.
+This project is licensed under the MIT License. For more details, see the [LICENSE](https://github.com/BayminBamu/Roblox-Aimbot-Script-made-by-ChatGPT/blob/main/LICENSE) file.
