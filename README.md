@@ -12,6 +12,7 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/BayminBamu/Roblox-Aim
 # Features
 ## Camera lock
 Of course the main part obviously self-explanatory.
+Hold RMB To Use it.
 ## Team Check
 Checks whether if the nearby player is in the team or not, if its not then it will target the player.
 ## Whitelist
@@ -20,3 +21,6 @@ In order to Un-Whitelist you need to click one of their names in the GUI list
 ## Draggable GUI
 Also self-explanatory.
 
+
+## License
+This project is licensed under the MIT License. For more details, see the [LICENSE]([https://pages.github.com/](https://github.com/BayminBamu/Roblox-Aimbot-Script-made-by-ChatGPT/blob/main/LICENSE)) file.
